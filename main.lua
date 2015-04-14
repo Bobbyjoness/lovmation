@@ -1,7 +1,8 @@
+lovmation = require("lovmation")
 
 naruto = love.graphics.newImage("naruto_sheet.png")
 
-quad = {}
+quad = {} 
 
 w = 25
 h = 32
