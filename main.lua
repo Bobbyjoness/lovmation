@@ -31,5 +31,5 @@ function love.update(dt)
 end
 
 function love.draw( )
-	love.graphics.draw( naruto, quad[s], 0,0, 0, 5, 5)
+	love.graphics.draw( naruto, quad[s], 0,0, 0, -5, 5)
 end
