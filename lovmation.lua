@@ -32,6 +32,8 @@ function lovmation:init(  qwidth, qheight, iwidth, iheight, rows, columns  )
 
 			self.frames[frameCount].quad = love.graphics.newQuad( j*qwidth, i*qheight, qwidth, qheight, iwidth, iheight )
 
+			frameCount = frameCount + 1
+
 		end
 
 	end
@@ -39,7 +41,10 @@ function lovmation:init(  qwidth, qheight, iwidth, iheight, rows, columns  )
 	self.sequence = {}
 
 	self.currentSequence = nil -- denotes the currntly updating sequence. Internal use only.
+
 	self.currentFrame    = 1
+
+	self.currentSequence = ""
 
 end
 
@@ -57,7 +62,7 @@ end
 
 function lovmation:addSpriteBatch( SpriteBatch )
 
-	assert(image:typeOf("SpriteBatch"), "Need to pass in an SpriteBatch")
+	assert(SpriteBatch:typeOf("SpriteBatch"), "Need to pass in an SpriteBatch")
 
 	self.spritebatch = SpriteBatch
 
@@ -75,11 +80,13 @@ end
 	the name is how you reference the sequence
 --]]
 
-function lovmation:newSequence( sequenceName, frames, delay ) 
+function lovmation:newSequence( sequenceName, quads, delay ) 
 
 	self.sequence[sequenceName] = {}
 
-	self.sequence[sequenceName].frames = frames
+	self.sequence[sequenceName].quads = quads
+
+	self.sequence[sequenceName].currentFrame = #self.sequence[sequenceName].quads
 
 	self.sequence[sequenceName].delay = delay or 0.5
 
@@ -91,21 +98,45 @@ function lovmation:updateSequence( sequenceName, dt )
 
 	self.sequence[sequenceName].timer = self.sequence[sequenceName].timer + dt
 
-	if  self.sequence[sequenceName].timer > self.sequence[sequenceName].delay then
+	if self.sequence[sequenceName].timer > self.sequence[sequenceName].delay then
+
+		self.sequence[sequenceName].timer = 0 
+
+		if self.sequence[sequenceName].currentFrame == #self.sequence[sequenceName].quads then 
+
+			self.sequence[sequenceName].currentFrame = 1
+
+		else 
+
+			self.sequence[sequenceName].currentFrame = self.sequence[sequenceName].currentFrame + 1
+
+		end
 
 	end
-
-
-
 
 end
 --[[
 	sequenceName is the name of the sequence you would like to draw
 	if this uses a spritebatch then it alone will not draw the sprite must draw the spritebatch your self.
 --]]
-function lovmation:drawSequence( sequenceName, x, y, flipx, flipy, r, sx, sy, ox, oy, kx, ky )
+function lovmation:drawSequence( sequenceName, x, y, r, sx, sy, ox, oy, kx, ky )
+	local currentFrame = self.sequence[sequenceName].currentFrame
+	local quads = self.sequence[sequenceName].quads
+	local quad  = self.frames[quads[currentFrame]].quad
 
+	if self.image then
 
+		love.graphics.setColor( 255, 255, 255, 255 )
+
+		love.graphics.draw(self.image, quad, x, y, r, sx, sy, ox, oy, kx, ky )
+
+	elseif self.spritebatch then
+
+		self.spritebatch:setColor( 255, 255, 255, 255 )
+
+		self.spritebatch:set( self.id, quad, x, y, r, sx, sy, ox, oy, kx, ky )
+
+	end
 
 end
 
